@@ -9,7 +9,7 @@ class MediumCrawler(BlogCrawler):
     @property
     def content(self):
         return remove_escape((self._soup.select_one("article")).get_text())
-    
+
 
 if __name__ == "__main__":
     url = "https://medium.com/in-fitness-and-in-health/swim-or-run-what-is-the-better-cardio-5128e759010b"
