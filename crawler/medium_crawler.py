@@ -2,8 +2,8 @@ import re
 import json
 import requests
 
-from utils import remove_escape
-from blog_crawler import BlogCrawler
+from utils.utils import remove_escape
+from crawler.blog_crawler import BlogCrawler
 
 
 class MediumCrawler(BlogCrawler):
@@ -40,25 +40,25 @@ class MediumCrawler(BlogCrawler):
 
 
 if __name__ == "__main__":
-    url = "https://medium.com/@yahyanf2/a-unique-beverage-that-lowers-weight-sugar-and-strengthens-the-heart-42fe73343d48"
+    # url = "https://medium.com/@yahyanf2/a-unique-beverage-that-lowers-weight-sugar-and-strengthens-the-heart-42fe73343d48"
     mc = MediumCrawler()
 
-    soup = mc.parse(url=url)
+    # soup = mc.parse(url=url)
 
-    print(mc.get_info(soup))
-    print(mc.get_content(soup))
+    # print(mc.get_info(soup))
+    # print(mc.get_content(soup))
     # print(mc.get_topic_urls("startup"))
 
-    # urls = mc.get_topic_urls("beverage")
+    urls = mc.get_topic_urls("ufc middleweight")
 
-    # for url in urls:
-    #     print("*"*50)
-    #     print(url)
-    #     soup = mc.parse(url)
-    #     print(mc.get_info(soup))
-    #     content = mc.get_content(soup)
-    #     print(f"content length: {len(content)}")
-    #     print(f"{content[:50]} ...")
+    for url in urls:
+        print("*"*50)
+        print(url)
+        soup = mc.parse(url)
+        print(mc.get_info(soup))
+        content = mc.get_content(soup)
+        print(f"content length: {len(content)}")
+        print(f"{content[:50]} ...")
 
     """
     **************************************************
