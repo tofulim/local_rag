@@ -1,3 +1,4 @@
+from vllm.vllm import SamplingParams
 from vllm.vllm import LLM
 from transformers import AutoTokenizer
 
@@ -13,7 +14,9 @@ class LanguageModel:
         self,
         model_name: str,
         max_model_len: int = 16384,
+        max_new_tokens: int = 48,
     ):
+        self.max_new_tokens = max_new_tokens
         self.model = LLM(
             model=model_name,
             dtype="float32",
@@ -21,72 +24,52 @@ class LanguageModel:
             # device="mps",
         )
 
+        # sampling_params = SamplingParams(max_tokens=max_new_tokens)
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+        self.base_prompt = """
+        You are designed to answer user questions accurately and effectively.
+        Reference documents will be provided and if the references contain useful information then use it.
+        But using them is not mendatory, if they are not relevant you could ignore them.
+        Also Your response should be short, compact, clear, well-structured, compact and informative.
+        """
 
-# ---
-from vllm.vllm import SamplingParams
-from vllm.vllm import LLM
-from transformers import AutoTokenizer
+        self.cites_prompt = """
+        Now, here are some hint Documents.
+        1. Doc1: Israel Adesanya fights in the middleweight division and was the middleweight champion from 2019 to 2022.
+        2. Doc: 2024 UFC middleweight champion is Dricus du Plessis. and he got his next fight at UFC 312 fight card with his contender Sean Strickland.
+        2. Doc3: In the wake of Yoel Romero’s stunning knock out victory against Luke Rockholdat UFC 221, there are a number of possible matchups at 2021
 
-llm = LLM(
-    model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-    dtype="float32",
-    max_model_len=49028,
-    # device="mps",
-)
+        Please answer the question.
+        """
 
+        self.base_system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
 
-# Initialize the tokenizer
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
+    def chat(self, conversation: list):
+        """챗
+        채팅 형식으로 대화를 받아 입력으로 넣어 발화를 생성해 반화한다.
 
-# Prepare your prompts
-base_prompt = """
-You are an AI assistant designed to answer user questions accurately and effectively.
-Reference documents are provided, but you are **not required** to use them if they are not relevant.
-If the references contain useful information, cite them appropriately (e.g., **(Doc 1)**).
-Otherwise, answer based on your general knowledge.
-Your response should be **clear, well-structured, and informative**.
-"""
-cites = """
-Now, here are some Documents and summaries of those you could refer.
-1. Document 1 Summary: Israel Adesanya fights in the middleweight division and was the middleweight champion from 2019 to 2022.
-2. Document 2 Summary: 2024 UFC middleweight champion is Dricus du Plessis. and he got his next fight at UFC 312 fight card with his contender Sean Strickland.
-2. Document 3 Summary: In the wake of Yoel Romero’s stunning knock out victory against Luke Rockholdat UFC 221, there are a number of possible matchups at 2021
+        Args:
+            conversation (list): (system | user | assistant) role을 가지는 (role, content) 구조의 대화 리스트
 
-Please answer the question.
-"""
-prompt = f"who is the 2024 UFC middleweight champion?{cites}"
-messages = [
-    {"role": "system", "content": f"You are Qwen, created by Alibaba Cloud. You are a helpful assistant. {base_prompt}"},
-    {"role": "user", "content": prompt}
-]
-text = tokenizer.apply_chat_template(
-    messages,
-    tokenize=False,
-    add_generation_prompt=False
-)
+        Examples::
+            conversation = [
+                {
+                    "role": "system",
+                    "content": base_prompt
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+                {
+                    "role": "system",
+                    "content": cites,
+                },
+            ]
+        """
+        sampling_params = SamplingParams(max_tokens=self.max_new_tokens)
+        output = self.model.chat(conversation, sampling_params=sampling_params)
 
-
-
-query = "who is the 2024 UFC middleweight champion?"
-
-conversation = [
-    {
-        "role": "system",
-        "content": base_prompt
-    },
-    {
-        "role": "user",
-        "content": prompt,
-    },
-    {
-        "role": "system",
-        "content": cites,
-    },
-]
-
-sampling_params = SamplingParams(max_tokens=256)
-output = llm.chat(conversation, sampling_params=sampling_params)
-# text='</think>\n\nThe 2024 UFC middleweight champion is Dricus'
-print(output)
+        return output
