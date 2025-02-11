@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 
-from utils.text_embedding import Vectorizer
+from embedding.text_embedding import Vectorizer
 
 
 class VectorDB:
