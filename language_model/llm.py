@@ -14,7 +14,7 @@ class LanguageModel:
         self,
         model_name: str,
         max_model_len: int = 16384,
-        max_new_tokens: int = 48,
+        max_new_tokens: int = 64,
     ):
         self.max_new_tokens = max_new_tokens
         self.model = LLM(
