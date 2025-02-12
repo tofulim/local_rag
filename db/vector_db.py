@@ -17,8 +17,8 @@ class VectorDB:
         self.index.add(vectors)
 
     def search(self, query: np.ndarray, k: int = 1):
-        distance, indices = self.index.search(query, k)
-        return distance, indices
+        distances, indices = self.index.search(query, k)
+        return distances, indices
 
 
 if __name__ == "__main__":
@@ -44,9 +44,11 @@ if __name__ == "__main__":
         vdb.add(vectors)
         print(vdb.index.ntotal)
 
-    user_query = "japan and south korea's love"
-    query_vector = vectorizor([user_query])[0]["embeddings"].reshape(1, -1)
-    print(f"query_vector shape : {query_vector.shape}")
-    res = vdb.search(query_vector, 1)
-    # (array([[0.       , 1.4206209, 1.4327368]], dtype=float32), array([[3, 2, 1]]))
-    print(res)
+    # user_query = "japan and south korea's love"
+    # query_vector = vectorizor([user_query])[0]["embeddings"].reshape(1, -1)
+    # print(f"query_vector shape : {query_vector.shape}")
+    # res = vdb.search(query_vector, 1)
+    # # (array([[0.       , 1.4206209, 1.4327368]], dtype=float32), array([[3, 2, 1]]))
+    # print(res)
+
+    print(f"{vdb.index} is this")
