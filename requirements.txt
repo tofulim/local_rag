@@ -1,5 +1,7 @@
 requests
 transformers==4.48.3
-torch==2.6.0
+torch==2.5.1
 sentence-transformers==3.4.1
 faiss-cpu==1.10.0
+beautifulsoup4==4.13.3
+numpy==1.25.0
