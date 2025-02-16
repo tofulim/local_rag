@@ -32,11 +32,10 @@ class LocalRAG:
 
         self.base_system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
         self.base_direction = """
-        You are designed to answer user questions with precision and efficiency.
+        You are designed to answer user questions with short, concise and simple.
 
-        - Keep your responses concise and to the point.
         - You may be provided with reference documents. Use them if they contain relevant information.
-        - If the references are not useful, feel free to ignore them.
+        - If the references are not useful, feel free to ignore them. referring them are not mendatory.
         """
 
     def __call__(self, query: str, num_docs: int):
@@ -90,7 +89,7 @@ class LocalRAG:
 
         cite_strings = []
         for idx, doc in enumerate(docs):
-            cite_strings.append(f"Doc {idx}: {doc}")
+            cite_strings.append(f"Doc {idx + 1}: {doc}")
         cite_prompt = "\n".join(cite_strings)
 
 
@@ -128,7 +127,7 @@ class LocalRAG:
         summarize_results = self.summarizer(texts = formed_articles)
         self.summarized_articles = []
         for summarize_result in summarize_results:
-            self.summarized_articles.extend(summarize_result)
+            self.summarized_articles.extend(summarize_result["summary_texts"])
 
         # 3. 벡터화하고 벡터 db를 만든다.
         vectorized_results = self.vectorizer(texts=self.summarized_articles)
@@ -171,11 +170,19 @@ class LocalRAG:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Local RAG")
+    parser.add_argument("--question", type=str, required=True)
+
+    args = parser.parse_args()
+    question = args.question
+
     crawler = MediumCrawler()
     vector_db = VectorDB()
     vectorizer = Vectorizer()
     summarizer = Summarizer()
-    llm = LanguageModel(model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
+    llm = LanguageModel(model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", max_new_tokens=128)
 
     local_rag = LocalRAG(
         crawler=crawler,
@@ -186,13 +193,10 @@ if __name__ == "__main__":
     )
 
     # 주제 선택
-    local_rag.set_rag_background(topic="beverage")
+    local_rag.set_rag_background(topic=question)
     # 쿼리
     res = local_rag(
-        query="what's unique beverage nowdays",
+        query=question,
         num_docs=3,
     )
     print(res)
-
-    # 프롬프트 (docs가 좀 이상하게 들어갔음) 그래도 파이프라인은 대략 됨
-    # RequestOutput(request_id=0, prompt="<｜begin▁of▁sentence｜>You are Qwen, created by Alibaba Cloud. You are a helpful assistant.\n\n        You are designed to answer user questions with precision and efficiency.\n\n        - Keep your responses concise and to the point.\n        - You may be provided with reference documents. Use them if they contain relevant information.\n        - If the references are not useful, feel free to ignore them.\n        <｜User｜>what's unique beverage nowdays<｜Assistant｜>Do you have any reference documents for me to consider?<｜end▁of▁sentence｜><｜User｜>Here are some reference documents.\nDoc 0: time\nDoc 1: time\nDoc 2: summary_texts<｜Assistant｜><think>\n", prompt_token_ids=[151646, 151646, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 382, 286, 1446, 525, 6188, 311, 4226, 1196, 4755, 448, 16052, 323, 15024, 382, 286, 481, 13655, 697, 14507, 63594, 323, 311, 279, 1459, 624, 286, 481, 1446, 1231, 387, 3897, 448, 5785, 9293, 13, 5443, 1105, 421, 807, 6644, 9760, 1995, 624, 286, 481, 1416, 279, 15057, 525, 537, 5390, 11, 2666, 1910, 311, 10034, 1105, 624, 260, 151644, 12555, 594, 4911, 42350, 1431, 13778, 151645, 5404, 498, 614, 894, 5785, 9293, 369, 752, 311, 2908, 30, 151643, 151644, 8420, 525, 1045, 5785, 9293, 624, 9550, 220, 15, 25, 882, 198, 9550, 220, 16, 25, 882, 198, 9550, 220, 17, 25, 12126, 79646, 151645, 151648, 198], encoder_prompt=None, encoder_prompt_token_ids=None, prompt_logprobs=None, outputs=[CompletionOutput(index=0, text='Okay, the user is asking about "what\'s unique beverage right now." They\'ve also provided some reference documents, but they won\'t go into details. Maybe they\'re looking for a quick answer without getting too bogged down.\n\nI should explain that the field is pretty broad, so I\'ll give examples of popular Chinese', token_ids=(32313, 11, 279, 1196, 374, 10161, 911, 330, 12555, 594, 4911, 42350, 1290, 1431, 1189, 2379, 3003, 1083, 3897, 1045, 5785, 9293, 11, 714, 807, 2765, 944, 728, 1119, 3565, 13, 10696, 807, 2299, 3330, 369, 264, 3974, 4226, 2041, 3709, 2238, 34419, 3556, 1495, 382, 40, 1265, 10339, 429, 279, 2070, 374, 5020, 7205, 11, 773, 358, 3278, 2968, 10295, 315, 5411, 8453), cumulative_logprob=None, logprobs=None, finish_reason=length, stop_reason=None)], finished=True, metrics=RequestMetrics(arrival_time=1739367192.726567, last_token_time=1739367225.29746, first_scheduled_time=1739367192.7344131, first_token_time=1739367211.25861, time_in_queue=0.00784611701965332, finished_time=1739367225.299223, scheduler_time=0.01094104199995627, model_forward_time=None, model_execute_time=None), lora_request=None, num_cached_tokens=0, multi_modal_placeholders={})]
