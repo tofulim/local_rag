@@ -14,7 +14,7 @@ class LanguageModel:
         self,
         model_name: str,
         max_model_len: int = 16384,
-        max_new_tokens: int = 48,
+        max_new_tokens: int = 64,
     ):
         self.max_new_tokens = max_new_tokens
         self.model = LLM(
@@ -27,24 +27,6 @@ class LanguageModel:
         # sampling_params = SamplingParams(max_tokens=max_new_tokens)
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-        self.base_prompt = """
-        You are designed to answer user questions accurately and effectively.
-        Reference documents will be provided and if the references contain useful information then use it.
-        But using them is not mendatory, if they are not relevant you could ignore them.
-        Also Your response should be short, compact, clear, well-structured, compact and informative.
-        """
-
-        self.cites_prompt = """
-        Now, here are some hint Documents.
-        1. Doc1: Israel Adesanya fights in the middleweight division and was the middleweight champion from 2019 to 2022.
-        2. Doc: 2024 UFC middleweight champion is Dricus du Plessis. and he got his next fight at UFC 312 fight card with his contender Sean Strickland.
-        2. Doc3: In the wake of Yoel Romero’s stunning knock out victory against Luke Rockholdat UFC 221, there are a number of possible matchups at 2021
-
-        Please answer the question.
-        """
-
-        self.base_system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
 
     def chat(self, conversation: list):
         """챗

@@ -52,3 +52,4 @@ if __name__ == "__main__":
         texts=[text],
     )
     print(res)
+    print(res[0]["embeddings"])

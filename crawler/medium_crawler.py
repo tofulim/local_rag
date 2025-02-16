@@ -29,7 +29,7 @@ class MediumCrawler(BlogCrawler):
 
         pattern = 'mediumUrl\":\"(.*?)\"'
         urls = re.findall(pattern, response.text)
-        # \u002F 를 정상적으로 치환해준다
+        # \u002F를 치환해 정상적으로 만들어준다.
         decoded_urls = list(map(lambda url: json.loads(f'"{url}"'), urls))
 
         return decoded_urls
