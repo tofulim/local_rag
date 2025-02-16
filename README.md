@@ -49,8 +49,7 @@ Open a terminal and run:
 
 ### just deploy and try
 ```
-$ python3 -m local_rag --question "Who is th
-e best boxer in the world"
+$ python3 -m local_rag --question "Who is the best boxer in the world"
 ```
 <img width="2541" alt="image" src="https://github.com/user-attachments/assets/2c372516-b41e-4746-aac6-11b252231661" />
 
