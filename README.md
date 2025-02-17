@@ -33,6 +33,9 @@ Local RAG는 Apple 실리콘칩 MPS를 이용해 온전히 모든 것을 호스�
 	- /db
 	- 임베딩 벡터를 보관/검색하는 db입니다.
 
+## Workflow
+![image](https://github.com/user-attachments/assets/34b83966-d2e4-436e-8eb2-fbb4428539d4)
+
 ## Installation
 Open a terminal and run:
 
