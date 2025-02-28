@@ -3,12 +3,12 @@ import json
 import requests
 
 from utils.utils import remove_escape
-from crawler.blog_crawler import BlogCrawler
+from crawler.base_crawler import BaseCrawler
 
 
-class MediumCrawler(BlogCrawler):
+class MediumCrawler(BaseCrawler):
     def __init__(self):
-        BlogCrawler.__init__(self)
+        BaseCrawler.__init__(self)
 
         self.medium_url = "https://medium.com"
 
