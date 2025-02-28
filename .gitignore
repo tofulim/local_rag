@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# gradio output
+.gradio
+
 # C extensions
 *.so
 
