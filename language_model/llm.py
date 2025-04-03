@@ -3,7 +3,7 @@ from vllm.vllm import LLM
 from transformers import AutoTokenizer
 
 
-class LanguageModel:
+class BaseLanguageModel:
     """LLM
     vllm을 활용한 LLM 세부 구현체
     completion 형태의 메시지를 구성하고 발화한다.
