@@ -3,10 +3,14 @@ LocalRAG는 특정 주제에 대해 데이터를 모으고 요약해 LLM에 제�
 Mac OS 로컬 환경에서 이에 필요한 LLM, 요약 모델, 임베딩 모델들을 모두 직접 호스팅한다.
 """
 import numpy as np
+from tqdm import tqdm
 
 from embedding.text_embedding import Vectorizer
 from crawler.medium_crawler import MediumCrawler
-from language_model.llm import LanguageModel
+from language_model.qwen import DeepSeekQwen
+from language_model.llm import BaseLanguageModel
+from crawler.crawler_factory import CrawlerFactory
+from language_model.model_factory import ModelFactory
 from summary.summarize import Summarizer
 from db.vector_db import VectorDB
 
@@ -22,21 +26,13 @@ class LocalRAG:
         vecotr_db: VectorDB,
         vectorizer: Vectorizer,
         summarizer: Summarizer,
-        llm: LanguageModel,
+        llm: BaseLanguageModel,
     ):
         self.crawler = crawler
         self.vector_db = vecotr_db
         self.vectorizer = vectorizer
         self.summarizer = summarizer
         self.llm = llm
-
-        self.base_system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
-        self.base_direction = """
-        You are designed to answer user questions with short, concise and simple.
-
-        - You may be provided with reference documents. Use them if they contain relevant information.
-        - If the references are not useful, feel free to ignore them. referring them are not mendatory.
-        """
 
     def __call__(self, query: str, num_docs: int):
         """질문 답변
@@ -65,6 +61,8 @@ class LocalRAG:
         )
 
         print(f"검색 결과는 다음과 같습니다.\ndistance: {distances}\nindicies: {indicies}")
+        for index in indicies[0]:
+            print(f"index {index}: {self.summarized_articles[index]}")
 
         conversation = self._get_conversation(
             query=query,
@@ -92,11 +90,10 @@ class LocalRAG:
             cite_strings.append(f"Doc {idx + 1}: {doc}")
         cite_prompt = "\n".join(cite_strings)
 
-
         conversation = [
             {
                 "role": "system",
-                "content": f"{self.base_system_message}\n{self.base_direction}"
+                "content": f"{self.llm.base_system_message}\n{self.llm.base_direction}"
             },
             {
                 "role": "user",
@@ -104,11 +101,11 @@ class LocalRAG:
             },
             {
                 "role": "assistant",
-                "content": "Do you have any reference documents for me to consider?",
+                "content": self.llm.base_document_request_message,
             },
             {
                 "role": "user",
-                "content": f"Here are some reference documents.\n{cite_prompt}",
+                "content": f"{self.llm.base_user_reference_message}\n{cite_prompt}",
             },
         ]
 
@@ -126,8 +123,10 @@ class LocalRAG:
         # (summary, elapsed_time) 구조를 변환한다.
         summarize_results = self.summarizer(texts = formed_articles)
         self.summarized_articles = []
-        for summarize_result in summarize_results:
+        for summarize_result in tqdm(summarize_results, desc="summarize articles ..."):
             self.summarized_articles.extend(summarize_result["summary_texts"])
+
+        print(f"self.summarized_articles: {self.summarized_articles}")
 
         # 3. 벡터화하고 벡터 db를 만든다.
         vectorized_results = self.vectorizer(texts=self.summarized_articles)
@@ -136,7 +135,6 @@ class LocalRAG:
         self.vector_db.add(vectors=vectors)
 
         print("rag background settings done !")
-
 
 
     def _get_topic_articles(
@@ -153,18 +151,25 @@ class LocalRAG:
         Returns:
             articles (list[dict]): 제목, 내용을 포함한 글 객체 리스트
         """
-        articles = []
+        articles, err_cnt = [], 0
         urls = self.crawler.get_topic_urls(topic=topic)
 
-        for url in urls:
+        for idx, url in enumerate(tqdm(urls, desc="parse articles ...")):
             parsed_bs_obj = self.crawler.parse(url=url)
-            title = self.crawler.get_title(parsed_bs_obj)
-            content = self.crawler.get_content(parsed_bs_obj)
-            # (제목, 본문) 형태로 추가
-            articles.append({
-                "title": title,
-                "content": content,
-            })
+            try:
+                title = self.crawler.get_title(parsed_bs_obj)
+                content = self.crawler.get_content(parsed_bs_obj)
+                # (제목, 본문) 형태로 추가
+                articles.append({
+                    "title": title,
+                    "content": content,
+                })
+                print(f"url: {url}, title: {title}")
+            except Exception as e:
+                print(f"Idx {idx} got and error: {e}")
+                err_cnt += 1
+
+        print(f"topic: {topic} 에 대한 글 {len(articles)}개 중 수집 완료. err_cnt: {err_cnt}")
 
         return articles
 
@@ -178,11 +183,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     question = args.question
 
-    crawler = MediumCrawler()
-    vector_db = VectorDB()
-    vectorizer = Vectorizer()
-    summarizer = Summarizer()
-    llm = LanguageModel(model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", max_new_tokens=128)
+    vectorizer = Vectorizer(
+        model_name="intfloat/multilingual-e5-small",
+    )
+    vector_db = VectorDB(dim=vectorizer.embedding_dim)
+
+    summarizer = Summarizer(model_name="digit82/kobart-summarization")
+    crawler = CrawlerFactory().get("tistory")()
+    llm = ModelFactory().get("kanana")(
+        model_name="kakaocorp/kanana-nano-2.1b-instruct",
+        max_new_tokens=256,
+        max_model_len=4096,
+    )
 
     local_rag = LocalRAG(
         crawler=crawler,
@@ -197,6 +209,6 @@ if __name__ == "__main__":
     # 쿼리
     res = local_rag(
         query=question,
-        num_docs=3,
+        num_docs=5,
     )
     print(res)
