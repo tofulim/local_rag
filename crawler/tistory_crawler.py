@@ -51,7 +51,9 @@ class TistoryCrawler(BlogCrawler):
             # 블로그 포스트 목록 추출
             posts = soup.select("div[class='item_group']")
 
-            for post in posts:
+            for idx, post in enumerate(posts):
+                if idx >= 10:
+                    break
                 p = post.select("a.link_cont.zoom_cont")
                 url = p[0].get("href")
                 # title = post.select_one("strong.tit_cont").get_text()
@@ -71,9 +73,25 @@ class TistoryCrawler(BlogCrawler):
         driver.quit()
         return urls
 
+    def get_content(self, _soup):
+        """글 내용 가져오기
+        티스토리는 html 태그 사용해서 커스텀할 수 있다. 이로 인해 article 태그를 쓰지 않는 경우가 있다.
+        tt_article_useless_p_margin 으로 찾거나 contents_style로 찾는다.
 
-    def get_content(self, _soup: object):
-        return remove_escape((_soup.select_one("article")).get_text())
+        Args:
+            _soup (bs4 object): parse 한 bs4 객체
+
+        Returns:
+            content (str): 글 내용
+        """
+        # tt_article_useless_p_margin contents_style 클래스를 찾는다.
+        content = _soup.select_one("div.tt_article_useless_p_margin.contents_style")
+        if content is None:
+            content = _soup.select_one("div.contents_style")
+
+        content = content.get_text()
+
+        return self.normalize_newlines(content)
 
 
 if __name__ == "__main__":
@@ -90,5 +108,11 @@ if __name__ == "__main__":
 
     for url in urls:
         soup = tc.parse(url)
-        info = tc.get_info(soup)
-        print(info)
+        # info = tc.get_info(soup)
+        # print(info)
+        try:
+            info = tc.get_content(soup)
+            # print(info)
+        except Exception as e:
+            print(f"url: {url}")
+            print(f"[!] 에러 발생: {e}")
