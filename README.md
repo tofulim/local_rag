@@ -52,14 +52,14 @@ Open a terminal and run:
 
 ### just deploy and try
 ```
-$ python3 -m local_rag --question "Who is the best boxer in the world"
+$ python3 -m gradio_ui
+
+# if u don't need graphic ui, just run with module
+$ python3 -m local_rag --question "봄에 가장 놀러가기 좋은 벚꽃 명소는 어디일까?"
 ```
-<img width="2541" alt="image" src="https://github.com/user-attachments/assets/2c372516-b41e-4746-aac6-11b252231661" />
+<img width="2541" alt="image" src="https://private-user-images.githubusercontent.com/52443401/430599543-105fd6a3-bdf7-45c6-aa05-0a483fad299d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDM5NzU0ODcsIm5iZiI6MTc0Mzk3NTE4NywicGF0aCI6Ii81MjQ0MzQwMS80MzA1OTk1NDMtMTA1ZmQ2YTMtYmRmNy00NWM2LWFhMDUtMGE0ODNmYWQyOTlkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA0MDYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNDA2VDIxMzMwN1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTMzMDhlODdiNTAzN2ViODA0ODdlYjJjMGUxZjIzYTc5MWNmOGQ2ZjVmMjIwZTk0N2ZkMmQxODA5ZjY1YTU2ZDgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.634x4JMWpnU6aRxF9vnMJOH7DpgQY3iFvP8w-Hgg32I" />
 
 
-## Limitation of this project
-deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B 모델의 성능이 생각보다 좋지 않았습니다. 원인을 생각해보자면.. distill qwen 1.5b는 수학에 최적화된 모델이기도 하고 1.5B의 작은 크기 모델에서는 스스로의 사전학습 지식으로 알아서 추론하는 경우보다 주어진 데이터를 근거로 생각하고 추론하는 경향이 느껴졌습니다. 따라서 Reasoning 모델인 R1은 좋은 문서를 넣어야 좋은 답변을 얻을 수 있을 것이라 생각합니다. (좀 더 질문 의도에 맞는 명확한 정보를 크롤링하여 전달하는 것이 필요함.)
-
-또한 1.5B는 한국말 능력이 좋지 않아 영어를 전제로 하고 있습니다.
-
-언어 설정이 영어에 제한되는 점 또한 Local RAG를 피부로 느끼기에 아쉬운 부분입니다.
+## Milestones of this project
+- DeepSeek 1.5b(영문모델) 사용한 gradio UI (pr #17) - 25.02.28
+- kanana 2.1b(한영모델) 활용하고 팩토리 패턴 적용 (pr #22) - 25.04.06
