@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 from embedding.text_embedding import Vectorizer
 from crawler.medium_crawler import MediumCrawler
-from language_model.qwen import DeepSeekQwen
 from language_model.llm import BaseLanguageModel
 from crawler.crawler_factory import CrawlerFactory
 from language_model.model_factory import ModelFactory
@@ -50,6 +49,7 @@ class LocalRAG:
 
         Returns:
             answer (str): 모델 답변
+            ref_docs (list): 모델 답변에 사용된 문서들
 
         """
         # 주제 선정과 이후 해당 주제에 대한 크롤링, 문서 추출 그리고 요약과 벡터화까지 마친 상태에서 수행된다.
@@ -60,9 +60,12 @@ class LocalRAG:
             k=num_docs,
         )
 
+        ref_docs = []
         print(f"검색 결과는 다음과 같습니다.\ndistance: {distances}\nindicies: {indicies}")
         for index in indicies[0]:
-            print(f"index {index}: {self.summarized_articles[index]}")
+            ref_doc = f"index {index}: {self.summarized_articles[index]}"
+            print(ref_doc)
+            ref_docs.append(ref_doc)
 
         conversation = self._get_conversation(
             query=query,
@@ -71,7 +74,7 @@ class LocalRAG:
 
         res = self.llm.chat(conversation=conversation)
 
-        return res
+        return res, ref_docs
 
 
     def _get_conversation(self, query: str, doc_indicies: list):
@@ -207,7 +210,7 @@ if __name__ == "__main__":
     # 주제 선택
     local_rag.set_rag_background(topic=question)
     # 쿼리
-    res = local_rag(
+    res, ref_docs = local_rag(
         query=question,
         num_docs=5,
     )
