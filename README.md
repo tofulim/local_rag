@@ -57,7 +57,7 @@ $ python3 -m gradio_ui
 # if u don't need graphic ui, just run with module
 $ python3 -m local_rag --question "봄에 가장 놀러가기 좋은 벚꽃 명소는 어디일까?"
 ```
-<img width="2541" alt="image" src="https://private-user-images.githubusercontent.com/52443401/430599543-105fd6a3-bdf7-45c6-aa05-0a483fad299d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDM5NzU0ODcsIm5iZiI6MTc0Mzk3NTE4NywicGF0aCI6Ii81MjQ0MzQwMS80MzA1OTk1NDMtMTA1ZmQ2YTMtYmRmNy00NWM2LWFhMDUtMGE0ODNmYWQyOTlkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA0MDYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNDA2VDIxMzMwN1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTMzMDhlODdiNTAzN2ViODA0ODdlYjJjMGUxZjIzYTc5MWNmOGQ2ZjVmMjIwZTk0N2ZkMmQxODA5ZjY1YTU2ZDgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.634x4JMWpnU6aRxF9vnMJOH7DpgQY3iFvP8w-Hgg32I" />
+![image](https://github.com/user-attachments/assets/2e52b0e0-edbf-47a7-8093-52f6d191b10c)
 
 
 ## Milestones of this project
